@@ -27,37 +27,37 @@ class MyApp extends StatelessWidget {
 }
 
 class MyHomePage extends StatefulWidget {
-  MyHomePage({Key? key, this.title}) : super(key: key);
+  MyHomePage({Key key, this.title}) : super(key: key);
 
-  final String? title;
+  final String title;
 
   @override
   _MyHomePageState createState() => _MyHomePageState();
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  List<PickedFile>? _imageFileList;
+  List<PickedFile> _imageFileList;
 
-  set _imageFile(PickedFile? value) {
+  set _imageFile(PickedFile value) {
     _imageFileList = value == null ? null : [value];
   }
 
   dynamic _pickImageError;
   bool isVideo = false;
 
-  VideoPlayerController? _controller;
-  VideoPlayerController? _toBeDisposed;
-  String? _retrieveDataError;
+  VideoPlayerController _controller;
+  VideoPlayerController _toBeDisposed;
+  String _retrieveDataError;
 
   final ImagePicker _picker = ImagePicker();
   final TextEditingController maxWidthController = TextEditingController();
   final TextEditingController maxHeightController = TextEditingController();
   final TextEditingController qualityController = TextEditingController();
 
-  Future<void> _playVideo(PickedFile? file) async {
+  Future<void> _playVideo(PickedFile file) async {
     if (file != null && mounted) {
       await _disposeVideoController();
-      late VideoPlayerController controller;
+      VideoPlayerController controller;
       if (kIsWeb) {
         controller = VideoPlayerController.network(file.path);
       } else {
@@ -79,26 +79,26 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void _onImageButtonPressed(ImageSource source,
-      {BuildContext? context, bool isMultiImage = false}) async {
+      {BuildContext context, bool isMultiImage = false}) async {
     if (_controller != null) {
-      await _controller!.setVolume(0.0);
+      await _controller.setVolume(0.0);
     }
     if (isVideo) {
-      final PickedFile? file = await _picker.getVideo(
+      final PickedFile file = await _picker.getVideo(
           source: source, maxDuration: const Duration(seconds: 10));
       await _playVideo(file);
     } else if (isMultiImage) {
-      await _displayPickImageDialog(context!,
-          (double? maxWidth, double? maxHeight, int? quality) async {
+      await _displayPickImageDialog(context,
+          (double maxWidth, double maxHeight, int quality) async {
         try {
-          final pickedFileList = await _picker.getMultiImage(
-            maxWidth: maxWidth,
-            maxHeight: maxHeight,
-            imageQuality: quality,
-          );
-          setState(() {
-            _imageFileList = pickedFileList;
-          });
+          // final pickedFileList = await _picker.getMultiImage(
+          //   maxWidth: maxWidth,
+          //   maxHeight: maxHeight,
+          //   imageQuality: quality,
+          // );
+          // setState(() {
+          //   _imageFileList = pickedFileList;
+          // });
         } catch (e) {
           setState(() {
             _pickImageError = e;
@@ -106,8 +106,8 @@ class _MyHomePageState extends State<MyHomePage> {
         }
       });
     } else {
-      await _displayPickImageDialog(context!,
-          (double? maxWidth, double? maxHeight, int? quality) async {
+      await _displayPickImageDialog(context,
+          (double maxWidth, double maxHeight, int quality) async {
         try {
           final pickedFile = await _picker.getImage(
             source: source,
@@ -130,8 +130,8 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   void deactivate() {
     if (_controller != null) {
-      _controller!.setVolume(0.0);
-      _controller!.pause();
+      _controller.setVolume(0.0);
+      _controller.pause();
     }
     super.deactivate();
   }
@@ -147,14 +147,14 @@ class _MyHomePageState extends State<MyHomePage> {
 
   Future<void> _disposeVideoController() async {
     if (_toBeDisposed != null) {
-      await _toBeDisposed!.dispose();
+      await _toBeDisposed.dispose();
     }
     _toBeDisposed = _controller;
     _controller = null;
   }
 
   Widget _previewVideo() {
-    final Text? retrieveError = _getRetrieveErrorWidget();
+    final Text retrieveError = _getRetrieveErrorWidget();
     if (retrieveError != null) {
       return retrieveError;
     }
@@ -171,7 +171,7 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Widget _previewImages() {
-    final Text? retrieveError = _getRetrieveErrorWidget();
+    final Text retrieveError = _getRetrieveErrorWidget();
     if (retrieveError != null) {
       return retrieveError;
     }
@@ -185,11 +185,11 @@ class _MyHomePageState extends State<MyHomePage> {
               return Semantics(
                 label: 'image_picker_example_picked_image',
                 child: kIsWeb
-                    ? Image.network(_imageFileList![index].path)
-                    : Image.file(File(_imageFileList![index].path)),
+                    ? Image.network(_imageFileList[index].path)
+                    : Image.file(File(_imageFileList[index].path)),
               );
             },
-            itemCount: _imageFileList!.length,
+            itemCount: _imageFileList.length,
           ),
           label: 'image_picker_example_picked_images');
     } else if (_pickImageError != null) {
@@ -229,7 +229,7 @@ class _MyHomePageState extends State<MyHomePage> {
         });
       }
     } else {
-      _retrieveDataError = response.exception!.code;
+      _retrieveDataError = response.exception.code;
     }
   }
 
@@ -237,7 +237,7 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.title!),
+        title: Text(widget.title),
       ),
       body: Center(
         child: !kIsWeb && defaultTargetPlatform == TargetPlatform.android
@@ -344,9 +344,9 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
-  Text? _getRetrieveErrorWidget() {
+  Text _getRetrieveErrorWidget() {
     if (_retrieveDataError != null) {
-      final Text result = Text(_retrieveDataError!);
+      final Text result = Text(_retrieveDataError);
       _retrieveDataError = null;
       return result;
     }
@@ -392,13 +392,13 @@ class _MyHomePageState extends State<MyHomePage> {
               TextButton(
                   child: const Text('PICK'),
                   onPressed: () {
-                    double? width = maxWidthController.text.isNotEmpty
+                    double width = maxWidthController.text.isNotEmpty
                         ? double.parse(maxWidthController.text)
                         : null;
-                    double? height = maxHeightController.text.isNotEmpty
+                    double height = maxHeightController.text.isNotEmpty
                         ? double.parse(maxHeightController.text)
                         : null;
-                    int? quality = qualityController.text.isNotEmpty
+                    int quality = qualityController.text.isNotEmpty
                         ? int.parse(qualityController.text)
                         : null;
                     onPick(width, height, quality);
@@ -411,27 +411,27 @@ class _MyHomePageState extends State<MyHomePage> {
 }
 
 typedef void OnPickImageCallback(
-    double? maxWidth, double? maxHeight, int? quality);
+    double maxWidth, double maxHeight, int quality);
 
 class AspectRatioVideo extends StatefulWidget {
   AspectRatioVideo(this.controller);
 
-  final VideoPlayerController? controller;
+  final VideoPlayerController controller;
 
   @override
   AspectRatioVideoState createState() => AspectRatioVideoState();
 }
 
 class AspectRatioVideoState extends State<AspectRatioVideo> {
-  VideoPlayerController? get controller => widget.controller;
+  VideoPlayerController get controller => widget.controller;
   bool initialized = false;
 
   void _onVideoControllerUpdate() {
     if (!mounted) {
       return;
     }
-    if (initialized != controller!.value.isInitialized) {
-      initialized = controller!.value.isInitialized;
+    if (initialized != controller.value.initialized) {
+      initialized = controller.value.initialized;
       setState(() {});
     }
   }
@@ -439,12 +439,12 @@ class AspectRatioVideoState extends State<AspectRatioVideo> {
   @override
   void initState() {
     super.initState();
-    controller!.addListener(_onVideoControllerUpdate);
+    controller.addListener(_onVideoControllerUpdate);
   }
 
   @override
   void dispose() {
-    controller!.removeListener(_onVideoControllerUpdate);
+    controller.removeListener(_onVideoControllerUpdate);
     super.dispose();
   }
 
@@ -453,8 +453,8 @@ class AspectRatioVideoState extends State<AspectRatioVideo> {
     if (initialized) {
       return Center(
         child: AspectRatio(
-          aspectRatio: controller!.value.aspectRatio,
-          child: VideoPlayer(controller!),
+          aspectRatio: controller.value.aspectRatio,
+          child: VideoPlayer(controller),
         ),
       );
     } else {
